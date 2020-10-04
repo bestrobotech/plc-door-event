@@ -1,0 +1,45 @@
+<html>
+
+<head></head>
+
+<body>
+    <div>
+        <button id="up-button">Up</button>
+    </div>
+    <div>
+        <button id="down-button">Down</button>
+    </div>
+    <div>
+        <button id="stop-button">Stop</button>
+    </div>
+    <div>
+        Status: <label id="status-label"></label>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
+    <script>
+        const socket = io(window.location.href);
+        const upButton = document.getElementById("up-button");
+        const downButton = document.getElementById("down-button");
+        const stopButton = document.getElementById("stop-button");
+        const statusLabel = document.getElementById("status-label");
+
+        upButton.addEventListener('click', () => {
+            console.log('up')
+            socket.emit('door_event', 'up');
+        })
+        downButton.addEventListener('click', () => {
+            console.log('down')
+            socket.emit('door_event', 'down');
+        })
+        stopButton.addEventListener('click', () => {
+            console.log('stop')
+            socket.emit('door_event', 'stop');
+        })
+        socket.on('door_status', function (status) {
+            console.log(status)
+            statusLabel.innerHTML = status;
+        });
+    </script>
+</body>
+
+</html>
