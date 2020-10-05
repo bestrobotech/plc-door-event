@@ -161,9 +161,6 @@
         appearance: none;
         transition: background-position var(--dur) linear;
       }
-      .lever input[type="radio"] {
-        /* display: none; */
-      }
       .lever.up {
         background-position: -0.5em 0, -0.5em 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0,
           0 0, 0 0, 0 0, 0 0;
@@ -243,11 +240,6 @@
       .lever.stop + label + label {
         background-color: #500;
         box-shadow: 0 0.5em 0.75em rgba(0, 0, 0, 0.3);
-      }
-      /* To stop animations from running on load */
-      .pristine:before,
-      .pristine:after {
-        animation: none;
       }
 
       @keyframes leverAUp {
@@ -334,11 +326,7 @@
       <div>status: <label id="status-label"></label></div>
     </div>
     <form>
-      <div name="lever" class="lever pristine stop" id="lever">
-        <input type="radio" value="up" name="door-radio" id="up-radio" />
-        <input type="radio" value="stop" name="door-radio" id="stop-radio" />
-        <input type="radio" value="down" name="door-radio" id="down-radio" />
-      </div>
+      <div name="lever" class="lever stop" id="lever"></div>
       <label for="lever" id="up-light"><span>Up</span></label>
       <label for="lever" id="down-light"><span>Down</span></label>
     </form>
@@ -352,68 +340,45 @@
       const upButton = document.getElementById("up-light");
       const downButton = document.getElementById("down-light");
       const statusLabel = document.getElementById("status-label");
-      
-      function up() {
-        lever.classList.remove("down");
-        lever.classList.remove("stop");
-        lever.classList.add("up");
-        console.log("up");
-        socket.emit("door_event", "up");
-      }
-
-      function stop() {
-        lever.classList.remove("down");
-        lever.classList.remove("up");
-        lever.classList.add("stop");
-        console.log("stop");
-        socket.emit("door_event", "stop");
-      }
-
-      function down() {
-        lever.classList.remove("up");
-        lever.classList.remove("stop");
-        lever.classList.add("down");
-        console.log("down");
-        socket.emit("door_event", "down");
-      }
-
-      lever.addEventListener("click", () => {
-        radios[1].checked = true;
-      });
-      upButton.addEventListener("click", () => {
-        radios[0].checked = true;
-      });
-      downButton.addEventListener("click", () => {
-        radios[2].checked = true;
-      });
 
       try {
         const socket = io(window.location.href);
-
-        const changeHandler = (event) => {
-          if (event.target.value === "up") {
-            
-          } else if (event.target.value === "down") {
-            
-          } else if (event.target.value === "stop") {
-            
-          }
-        };
-
-        Array.from(radios).forEach(function (radio) {
-          radio.addEventListener("change", changeHandler);
-        });
 
         socket.on("door_status", function (status) {
           console.log(status);
           statusLabel.innerHTML = status;
         });
 
-        document
-          .querySelector(".lever")
-          .addEventListener("change", function () {
-            this.classList.remove("pristine");
-          });
+        const up = () => {
+          lever.classList.remove("down");
+          lever.classList.remove("stop");
+          lever.classList.add("up");
+          socket.emit("door_event", "up");
+        };
+
+        const stop = () => {
+          lever.classList.remove("down");
+          lever.classList.remove("up");
+          lever.classList.add("stop");
+          socket.emit("door_event", "stop");
+        };
+
+        const down = () => {
+          lever.classList.remove("up");
+          lever.classList.remove("stop");
+          lever.classList.add("down");
+          socket.emit("door_event", "down");
+        };
+
+        lever.addEventListener("click", () => {
+          stop();
+        });
+        upButton.addEventListener("click", () => {
+          up();
+        });
+        downButton.addEventListener("click", () => {
+          down();
+        });
       } catch (err) {
         statusLabel.innerHTML = err;
       }
